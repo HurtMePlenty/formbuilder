@@ -54,6 +54,13 @@ $(document).ready(function () {
         $optionHolder.append('<input type="text" id="radioFieldWeight" />');
     }
 
+    $('#btnDelRadio').click(function () {
+        if (optionCounter > 1) {
+            $('#option' + optionCounter).remove();
+            optionCounter = optionCounter - 1;
+        }
+    });
+
 
 //prikupljanje vrijednosti za checkbox
     $('#getCbox').click(function () {
@@ -109,17 +116,16 @@ $(document).ready(function () {
         if ($('.getButtons').css('display') === 'none') {
 
             var $inputHolder;
-            var $removeBtn = $('<button>Remove</button>');
+            var $removeBtn = $('<button class="removeBtn">Remove</button>');
             $removeBtn.click(function () {
                 $inputHolder.remove();
             });
 
-            var $editBtn = $('<button>Edit</button>')
+            var $editBtn = $('<button class="editBtn">Edit</button>')
 
             if (controlType == 'textarea') {
                 if (editControlId) {
                     $('#lab-' + editControlId).text($('#textAreaLabel').val() + ':');
-                    editControlId = null;
                 } else {
                     textAreaCounter = textAreaCounter + 1;
                     totalControls = inputFieldCounter + selectfieldCounter + textAreaCounter + radioCounter + cboxCounter;
@@ -159,7 +165,6 @@ $(document).ready(function () {
                     $('#lab-' + editControlId).text($('#inputVal').val() + ':');
                     $('#' + editControlId).attr('type', type);
                     $('#' + editControlId).attr('optionId', selectVal);
-                    editControlId = null;
                 } else {
                     inputFieldCounter = inputFieldCounter + 1;
                     totalControls = inputFieldCounter + selectfieldCounter + textAreaCounter + radioCounter + cboxCounter;
@@ -186,10 +191,7 @@ $(document).ready(function () {
 
             //dodavanje select boxa u formu
             if (controlType == 'select') {
-                var labelText = $('#addSelLabel').val();
-
-                var optionCount = $('.selectControls .options').size();
-
+                var i = 0;
                 var generateOptions = function (selectId) {
                     $('.options').each(function () {
                         selectText = $(this).find('#selectFieldText').val();
@@ -199,14 +201,14 @@ $(document).ready(function () {
                             .attr('weight', selectWeight)
                             .attr('optionId', i)
                             .text(selectText));
+                        i++;
                     });
                 };
 
                 if (editControlId) {
-                    $('#lab-' + editControlId).text(labelText + ':');
+                    $('#lab-' + editControlId).text($('#addSelLabel').val() + ':');
                     $('#' + editControlId).empty();
                     generateOptions(editControlId);
-                    editControlId = null;
 
                 } else {
                     selectfieldCounter = selectfieldCounter + 1;
@@ -215,7 +217,7 @@ $(document).ready(function () {
                     $('.controlsHolder').append('<div class="selectField" id=control-' + totalControls + ' ></div>');
                     $inputHolder = $('#control-' + totalControls);
                     var selectText, selectWeight;
-                    $inputHolder.append('<label for=' + selectId + ' id="lab-' + selectId + '" >' + labelText + ': </label>');
+                    $inputHolder.append('<label for=' + selectId + ' id="lab-' + selectId + '" >' + $('#addSelLabel').val() + ': </label>');
                     $inputHolder.append('<select id=' + selectId + ' name=' + selectId + '>');
                     generateOptions(selectId);
                     $inputHolder.append($removeBtn);
@@ -223,7 +225,7 @@ $(document).ready(function () {
                     $editBtn.click(function () {
                         hideCreationControls();
                         $('#getSelect').click();
-                        $('#addSelLabel').val(labelText);
+                        $('#addSelLabel').val($('#lab-' + selectId).text().trim().slice(0, -1));
                         var first = true;
                         $('#' + selectId + ' option').each(function () {
                             var $option = $(this);
@@ -244,22 +246,70 @@ $(document).ready(function () {
 
 
             if (controlType == 'radio') {
-                radioCounter = radioCounter + 1;
-                totalControls = inputFieldCounter + selectfieldCounter + textAreaCounter + radioCounter + cboxCounter;
-                var radioId = 'radio-' + totalControls;
-                $('.controlsHolder').append('<div class="radioField" id=control-' + totalControls + ' ></div>');
-                $inputHolder = $('#control-' + totalControls),
-                    radioText, radioWeight;
-                $inputHolder.append('<label for=' + radioId + ' id="lab-mq-' + radioId + '" >' + $('#addRadioLabel').val() + ': </label>');
-                for (var i = 1; i <= optionCounter; i++) {
-                    brojOdg = i;
-                    radioText = $('#option' + i + ' #radioFieldText').val();
-                    radioWeight = $('#option' + i + ' #radioFieldWeight').val();
-                    $inputHolder.append('<input id=odg' + brojOdg + ' name=' + brojOdg + ' type="radio" weight="' + radioWeight + '" value="o' + brojOdg + '">');
-                    $inputHolder.append('<label for=odg' + brojOdg + ' id="lab-' + brojOdg + '" >' + radioText + '</label>');
+                var radioText, radioWeight;
+                var generateRadioContent = function ($label) {
+                    var $lastElem = $label;
+                    for (var i = 1; i <= optionCounter; i++) {
+                        brojOdg = i;
+                        radioText = $('#option' + i + ' #radioFieldText').val();
+                        radioWeight = $('#option' + i + ' #radioFieldWeight').val();
+                        var $lbl = $('<label for=odg' + brojOdg + ' id="lab-' + brojOdg + '" >' + radioText + '</label>');
+                        var $input = $('<input id=odg' + brojOdg + ' name=' + brojOdg + ' type="radio" weight="' + radioWeight + '" value="o' + brojOdg + '">');
+
+                        $lastElem.after($input);
+                        $input.after($lbl);
+                        $lastElem = $lbl;
+                    }
+
                 }
-                optionCounter = 0;
-                $('.options').remove();
+                if (editControlId) {
+                    var $label = $('#lab-mq-' + editControlId);
+                    $label.text($('#addRadioLabel').val() + ':');
+                    var $wrapper = $label.parent();
+
+                    $wrapper.find('input').each(function () {
+                        $(this).next().remove();
+                        $(this).remove();
+                    });
+
+                    generateRadioContent($label);
+
+                }
+                else {
+                    radioCounter = radioCounter + 1;
+                    totalControls = inputFieldCounter + selectfieldCounter + textAreaCounter + radioCounter + cboxCounter;
+                    var radioId = 'radio-' + totalControls;
+                    $('.controlsHolder').append('<div class="radioField" id=control-' + totalControls + ' ></div>');
+                    $inputHolder = $('#control-' + totalControls);
+
+                    var $controlLabel = $('<label for=' + radioId + ' id="lab-mq-' + radioId + '" >' + $('#addRadioLabel').val() + ': </label>');
+                    $inputHolder.append($controlLabel);
+
+                    generateRadioContent($controlLabel);
+
+                    $inputHolder.append($removeBtn);
+                    $inputHolder.append($editBtn);
+
+                    $editBtn.click(function () {
+                        hideCreationControls();
+                        $('#getRadio').click();
+                        $('#addRadioLabel').val($('#lab-mq-' + radioId).text().trim().slice(0, -1));
+                        var first = true;
+                        $('#lab-mq-' + radioId).parent().find('input').each(function () {
+                            if (first) {
+                                first = false;
+                            } else {
+                                $('#btnAddRadio').click();
+                            }
+
+                            var $radio = $(this);
+                            var $label = $radio.next();
+                            $('.radioControls #radioFieldText').last().val($label.text());
+                            $('.radioControls #radioFieldWeight').last().val($radio.attr('weight'));
+                        });
+                        editControlId = radioId;
+                    });
+                }
             }
 
 
@@ -291,13 +341,12 @@ $(document).ready(function () {
         $('.selectControls,.inputControls, .textAreaControls, .radioControls, .cboxControls').hide();
         $('.options').remove();
         $('.getButtons').fadeIn();
+        editControlId = null;
+        optionCounter = 0;
     }
 
 //switch kod cancela
     $('#btnCancel').click(function () {
-        $('.selectControls,.inputControls, .textAreaControls, .radioControls, .cboxControls').hide();
-        $('.getButtons').fadeIn();
-        optionCounter = 0;
-        $('.options').remove();
+        hideCreationControls();
     });
 });
