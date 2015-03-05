@@ -1,0 +1,121 @@
+.leftCol{
+  float:left;
+  width:60%;
+  height:500px;  
+  border:2px solid black;  
+}
+
+.rightCol{
+  float:left;
+  width:30%;
+  height:500px;  
+  border:2px solid black;
+  margin-left:3%; 
+}
+
+.rightCol input[type="button"]{
+  width:70%;  
+  margin-bottom:7%;
+  height:30px;
+}
+.rightCol input[type="text"]{
+  width:90%;  
+  margin-top:1%;
+}
+.buttonsholder{
+  text-align:right;
+  width:90%;
+  margin-top:5px;
+  float:left;
+}
+.controls{
+  display:none;    
+}
+.selectOption{
+  float:left;
+  width:100%;
+  margin-top:8%;
+}
+.optionCountLabel{
+  width: 100%;
+  float: left;
+}
+.optionButtons{
+position:absolute;
+right:96px;
+}
+.selectControls{
+display:none;
+float: left;
+width: 90%;
+margin-left: 10%;
+}
+.textAreaControls, .radioControls, .cboxControls {
+	display:none;
+float: left;
+width: 90%;
+margin-left: 10%;
+}
+
+
+.selectLabelHolder{
+position:relative;
+float: left;
+width: 69%;
+margin-bottom:5%;
+}
+
+[data-selectlabel="selectLabelField"]{
+margin-left: 6%;
+width: 71%;
+}
+[data-selecttext="selectTextField"]{
+margin-left: 8%;
+}
+.optionsHolder{
+float: left;
+width: 100%;
+height: 438px;
+overflow-y: auto;
+}
+.options{
+float:left;
+width: 70%;
+margin-bottom:5%;
+}
+.inputControls{
+display:none;
+float: left;
+margin-left: 20%;
+width: 62%;
+}
+[data-inputlabel="inputLabelField"]{
+margin-left: 5%;
+}
+.controlsHolder{
+float: left;
+width: 84%;
+padding:8%;
+}
+.selectField{
+float: left;
+width: 100%;
+margin-bottom:1%;
+}
+.inputField{
+float: left;
+width: 100%;
+margin-bottom:1%;
+}
+.selectField label,.inputField label{
+display: block;
+width:20%;
+float: left;
+word-wrap: break-word;
+}
+.inputFields input[type="text"]{
+margin-left: 5%
+}
+.selectFields select{
+margin-left: 5%;
+}

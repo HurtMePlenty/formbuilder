@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link href="style.css" rel="stylesheet" />
+<script src="jquery.js"></script>
+<script src="script.js"></script>
+  <meta charset="utf-8">
+  <title>eNabava formbuild</title>
+</head>
+<body>
+  <div class="leftCol">
+    <div class="controlsHolder" id="form"> </div>    
+  </div>
+  <div class="rightCol">
+  <div class="getButtons">
+  	<input type="button" id="getTextarea" value="Dodaj tekst area"/>
+    <input type="button" id="getTextbox" value="Dodaj polje za unos"/>
+    <input type="button" id="getSelect" value="Select box"/> 
+    <input type="button" id="getRadio" value="Radio "/> 
+    <input type="button" id="getCbox" value="Checkbox "/> 
+  </div>   
+
+  <div class="textAreaControls">
+	  <label>Naziv tekstualnog  polja:</label>
+	  <input type="text" id="textAreaLabel" />   
+  </div>  
+  
+  <div class="inputControls">
+	  <label>Naziv polja:</label>
+	  <input type="text" id="inputVal" /> 
+	  
+	  <label for="inputType">Vrsta polja</label>
+	  <select id="inputType">
+	  	<option value="1">Tekst</option>
+	  	<option value="2">Broj</option>
+	  	<option value="3">E-mail</option>
+	  </select>   
+  </div>
+  
+	<div class="selectControls">  
+		<div class="selectLabelHolder">
+			<label>Pitanje:</label>
+			<input type="text" id="addSelLabel" />  
+			<div class="optionButtons">
+				<input type="button" id="btnAddOption" value="+"/>
+				<input type="button" id="btnDelOption" value="-"/>     
+			</div>
+		</div>
+		<div class="optionsHolder">
+		</div>
+	</div>
+	
+	<div class="radioControls">  
+		<div class="radioLabelHolder">
+			<label>Pitanje:</label>
+			<input type="text" id="addRadioLabel" />  
+			<div class="optionButtons">
+				<input type="button" id="btnAddRadio" value="+"/>
+				<input type="button" id="btnDelRadio" value="-"/>     
+			</div>
+		</div>
+		<div class="optionsHolder">
+		</div>
+	</div>
+	
+	<div class="cboxControls">  
+		<div class="cboxLabelHolder">
+			<label>Pitanje:</label>
+			<input type="text" id="addCboxLabel" />  
+			<div class="optionButtons">
+				<input type="button" id="btnAddCbox" value="+"/>
+				<input type="button" id="btnDelCbox" value="-"/>     
+			</div>
+		</div>
+		<div class="optionsHolder">
+		</div>
+	</div>
+	
+
+  
+ </div>
+	<div class="buttonsholder">
+      <input type="button" id="btnSave" value="Dodaj u formu"/>  
+      <input type="button" id="btnCancel" value="Odustani"/>  
+	</div> 
+   
+   
+<button id="parse" >Parsiraj</button>   
+
+
+<script>
+var data=[];
+$('#parse').click(function(){  
+//uzimanje svih divova sa id control-x posto su to wraperi
+var controls = document.querySelectorAll('[id^=control-]');
+//brojac redosljeda
+pozicija=0;
+for (var i = 0; i < controls.length; i++) {
+pozicija = pozicija+1;
+//uzimanje klase po ID diva (posto wraper ima klasu po kojoj znamo koji je tip inputa unutra)
+var control = controls[i].className;
+
+
+//ako je textarea
+if(control=='textAreaField'){
+//ovo se moze uvijek ovako koristiti jer ce broj iza ovih vrijednosti odgovarati broju u formu pa nije nista potrebno drugo	
+	divId = 'control-'+pozicija;
+	divClass='textAreaField';
+	labelId='lab-textarea-'+pozicija;
+	labelFor='textarea-'+pozicija;
+	type = 'textarea'
+//uzimanje teksta labele za id labele lab-textarea-x (pozicija ili redni broj je X)	
+	getLabela = document.getElementById("lab-textarea-"+pozicija);
+	labelText = (getLabela.innerText || getLabela.textContent);
+//isto kao i prve vrijednosti - staticki podatak za dinamickim brojem iza
+	textAreaId='textarea-'+pozicija;
+	textAreaName = textAreaId;
+
+	outputTextArea = '<field><head><position>'+pozicija+'</position> <type>'+type+'</type> <fieldid>'+divId+'</fieldid></head>';
+	outputTextArea += '\n<body><label>'+labelText+'</label> <labelId>'+labelId+'</labelId><labelName>'+labelId+'</labelName></body></field> ';
+	
+	data.push(outputTextArea);
+
+} //end if textArea
+
+//ako je input field
+if(control=='inputField'){
+	divId = 'control-'+pozicija;
+	divClass='inputField';
+	labelId='lab-input-'+pozicija;
+	labelFor='input-'+pozicija;
+	type = 'input';
+
+	getLabela = document.getElementById("lab-input-"+pozicija);
+	labelText = (getLabela.innerText || getLabela.textContent);
+	innerType = $("#input-"+pozicija).attr('type');
+	inputId='input-'+pozicija;
+	inputName = inputId;
+
+	outputInput = '<field><head><position>'+pozicija+'</position> <type>'+type+'</type> <fieldid>'+divId+'</fieldid></head>';
+	outputInput += '\n<body><label>'+labelText+'</label>'; 	
+	outputInput += '<labelId>'+labelId+'</labelId><labelName>'+labelId+'</labelName><inputName>'+inputName+'</inputName><innerType>'+innerType+'</innerType></body></field>';
+	
+	data.push(outputInput);
+
+} //end if input
+
+
+//ako je select field
+if(control=='selectField'){
+	divId = 'control-'+pozicija;
+	divClass='selectField';
+	labelId='lab-select-'+pozicija;
+	labelFor='select-'+pozicija;
+	type = 'select';
+
+	getLabela = document.getElementById("lab-select-"+pozicija);
+	labelText = (getLabela.innerText || getLabela.textContent);
+
+	selectId='select-'+pozicija;
+	selectName = selectId;
+
+
+    var optionsContent = "";
+	$("#select-"+pozicija+ " option").each(function()
+	{
+	    //alert($(this).val()+'html: '+$(this).innerHTML);
+        var option = $(this);
+        var optionWeight = $(this).attr('weight');
+        var optionValue = $(this).val();
+        var optionText = $(this).text();
+        optionsContent += '<option><weight>' + optionWeight +'</weight><value>' + optionValue + '</value><text>' + optionText + '</text></option>';
+	});
+
+
+	
+
+	outputInput = '<field><head><position>'+pozicija+'</position> <type>'+type+'</type> <fieldid>'+divId+'</fieldid></head>';
+	outputInput += '\n<body><label>'+labelText+'</label><labelId>'+labelId+'</labelId><labelName>'+labelId+'</labelName>'; 	
+	outputInput += '<inputName>'+selectName+'</inputName>';
+	outputInput += '<options>'  + optionsContent +  '</options></body></field>';
+	data.push(outputInput);
+
+} //end if select
+
+
+
+//this is what i started for radio field. So basically ahow it works. When form is generated for every added input element it creates wrapping div with control-n  id and they have added class lets say radioField . Then i loop those control and i check if that div with id control has class radioField i know its radio field. Now above this comment everything works - for input, textarea and select. and still i need you to do radio Field. So basically you can try generate 1-2 radio fields (Radio from menu - ignore how it all looks, its just testing) and then you need to enter Pitanje (question), tekst odgovora = text next to radiobutton, and tezina-odgovora is weight of answer i added just as value="sth" you can have weight="20" (this maybe needs to be data-weight="20", so you can just pretend its data-weight since weight is not valid attribute). then you can hit + and add one more answer. Then on end you have Dodaj u formu which adds element on left side, then you can inspect what has been added.   (button Parse outputs this data.push and just alerts parsed html thats done till now. You can test to add input, textarea, and then hit parse to see. Structure for radio should be sth like in readme.txt.   oh fek. i see i just started for select abowe i didnt end the for each loop. if you want to do ith ill pay additional few $. )
+if(control=='radioField'){
+	divId = 'control-'+pozicija;
+	divClass='radioField';
+	labelId='lab-mq-radio-'+pozicija;
+	labelFor='radio-'+pozicija;
+	type = 'radio';
+
+	getWrap = "#control-"+pozicija;
+
+    var label = document.getElementById(labelId);
+    var labelText = label.innerHTML || label.textContent;
+
+
+    var radioOptionsContent = ""
+	
+	$(getWrap).children('input').each(function () {
+        var radioInput = $(this);
+        var radioInputId = radioInput.attr('id');
+
+
+        var radioInputName = radioInput.attr('name');
+        var inputType = 'radio';
+        var radioWeight = radioInput.attr('weight');
+        var radioValue = radioInput.val();
+        var radioLabel = $("label[for='" + radioInputId + "']");
+        var radioText = radioLabel.text();
+
+        radioOptionsContent += '<option><inputName>' + radioInputName + '</inputName><inputType>' + inputType + '</inputType>';
+        radioOptionsContent += '<weight>' + radioWeight + '</weight><value>' + radioValue + '</value><text>' + radioText + '</text></option>';
+
+});
+
+    //not sure if you need <labelName> here but it was in your 'select' code. Please check and remove if not needed
+    outputInput = '<field><head><position>'+pozicija+'</position> <type>'+type+'</type> <fieldid>'+divId+'</fieldid></head>';
+    outputInput += '\n<body><label>'+labelText+'</label><labelId>'+labelId+'</labelId><labelName>'+labelId+'</labelName>';
+    outputInput += '<options>'  + radioOptionsContent +  '</options></body></field>';
+
+    data.push(outputInput);
+
+} //end if input
+
+
+
+
+
+
+
+
+
+
+}  // end main FOR loop 
+
+
+
+	//data.join("\n");
+	alert (data);
+});  // end  parse funkcije
+
+</script>
+
+
+
+
+   
+   
+</body>
+</html>
