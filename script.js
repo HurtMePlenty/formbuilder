@@ -86,6 +86,13 @@ $(document).ready(function () {
         $optionHolder.append('<input type="text" id="cboxFieldWeight" />');
     }
 
+    $('#btnDelCbox').click(function () {
+        if (optionCounter > 1) {
+            $('#option' + optionCounter).remove();
+            optionCounter = optionCounter - 1;
+        }
+    });
+
 
 // dodavanje opcije
     $('#btnAddOption').click(function () {
@@ -255,10 +262,23 @@ $(document).ready(function () {
                         radioWeight = $('#option' + i + ' #radioFieldWeight').val();
                         var $lbl = $('<label for=odg' + brojOdg + ' id="lab-' + brojOdg + '" >' + radioText + '</label>');
                         var $input = $('<input id=odg' + brojOdg + ' name=' + brojOdg + ' type="radio" weight="' + radioWeight + '" value="o' + brojOdg + '">');
+                        var $removeRadioBtn = $('<button class="removeRadio">-</button>');
 
+                        +function () {
+                            var lblRef = $lbl;
+                            var inputRef = $input;
+                            var removeRadioBtnRef = $removeRadioBtn;
+                            $removeRadioBtn.click(function () {
+                                lblRef.remove();
+                                inputRef.remove();
+                                removeRadioBtnRef.remove();
+                            });
+                        }();
                         $lastElem.after($input);
                         $input.after($lbl);
-                        $lastElem = $lbl;
+                        $lbl.after($removeRadioBtn);
+                        $lastElem = $removeRadioBtn;
+
                     }
 
                 }
@@ -271,6 +291,8 @@ $(document).ready(function () {
                         $(this).next().remove();
                         $(this).remove();
                     });
+
+                    $wrapper.find('.removeRadio').remove();
 
                     generateRadioContent($label);
 
@@ -314,22 +336,87 @@ $(document).ready(function () {
 
 
             if (controlType == 'checkbox') {
-                cboxCounter = cboxCounter + 1;
-                totalControls = inputFieldCounter + selectfieldCounter + textAreaCounter + radioCounter + cboxCounter;
-                var cboxId = 'cbox-' + cboxCounter;
-                $('.controlsHolder').append('<div class="cboxField" id=control-' + totalControls + ' ></div>');
-                $inputHolder = $('#control-' + totalControls),
-                    cboxText, cboxWeight;
-                $inputHolder.append('<label for=' + cboxId + ' id="lab-mq-' + cboxId + '" >' + $('#addCboxLabel').val() + ': </label>');
-                for (var i = 1; i <= optionCounter; i++) {
-                    brojOdg = i;
-                    cboxText = $('#option' + i + ' #cboxFieldText').val();
-                    cboxWeight = $('#option' + i + ' #cboxFieldWeight').val();
-                    $inputHolder.append('<input id=' + brojOdg + ' name=' + brojOdg + ' type="checkbox" weight="' + cboxWeight + '" value="o' + brojOdg + '">');
-                    $inputHolder.append('<label for=' + brojOdg + ' id="lab-' + brojOdg + '" >' + cboxText + '</label>');
+
+                var generateCheckboxContent = function ($label) {
+                    var $lastElem = $label;
+                    for (var i = 1; i <= optionCounter; i++) {
+                        brojOdg = i;
+                        cboxText = $('#option' + i + ' #cboxFieldText').val();
+                        cboxWeight = $('#option' + i + ' #cboxFieldWeight').val();
+                        var $input = $('<input id=' + brojOdg + ' name=' + brojOdg + ' type="checkbox" weight="' + cboxWeight + '" value="o' + brojOdg + '">');
+                        var $lbl = $('<label for=' + brojOdg + ' id="lab-' + brojOdg + '" >' + cboxText + '</label>');
+
+                        var $removeCboxBtn = $('<button class="removeCbox">-</button>');
+
+                        +function () {
+                            var lblRef = $lbl;
+                            var inputRef = $input;
+                            var removeCboxBtnRef = $removeCboxBtn;
+                            $removeCboxBtn.click(function () {
+                                lblRef.remove();
+                                inputRef.remove();
+                                removeCboxBtnRef.remove();
+                            });
+                        }();
+
+                        $lastElem.after($input);
+                        $input.after($lbl);
+                        $lbl.after($removeCboxBtn);
+                        $lastElem = $removeCboxBtn;
+                    }
+                };
+
+                if (editControlId) {
+                    var $label = $('#lab-mq-' + editControlId);
+                    $label.text($('#addCboxLabel').val() + ':');
+
+                    var $wrapper = $label.parent();
+
+                    $wrapper.find('input').each(function () {
+                        $(this).next().remove();
+                        $(this).remove();
+                    });
+
+                    $wrapper.find('.removeCbox').remove();
+
+                    generateCheckboxContent($label);
+
+                } else {
+                    cboxCounter = cboxCounter + 1;
+                    totalControls = inputFieldCounter + selectfieldCounter + textAreaCounter + radioCounter + cboxCounter;
+                    var cboxId = 'cbox-' + cboxCounter;
+                    $('.controlsHolder').append('<div class="cboxField" id=control-' + totalControls + ' ></div>');
+                    $inputHolder = $('#control-' + totalControls);
+                    var cboxText, cboxWeight;
+                    var $controlLabel = $('<label for=' + cboxId + ' id="lab-mq-' + cboxId + '" >' + $('#addCboxLabel').val() + ': </label>');
+                    $inputHolder.append($controlLabel);
+                    generateCheckboxContent($controlLabel);
+
+
+                    $inputHolder.append($removeBtn);
+                    $inputHolder.append($editBtn);
+                    $editBtn.click(function () {
+                        hideCreationControls();
+                        $('#getCbox').click();
+                        $('#addCboxLabel').val($('#lab-mq-' + cboxId).text().trim().slice(0, -1));
+
+                        var first = true;
+                        $('#lab-mq-' + cboxId).parent().find('input').each(function () {
+                            if (first) {
+                                first = false;
+                            } else {
+                                $('#btnAddCbox').click();
+                            }
+
+                            var $cbox = $(this);
+                            var $label = $cbox.next();
+                            $('.cboxControls #cboxFieldText').last().val($label.text());
+                            $('.cboxControls #cboxFieldWeight').last().val($cbox.attr('weight'));
+                        });
+
+                        editControlId = cboxId;
+                    });
                 }
-                optionCounter = 0;
-                $('.options').remove();
             }
 
 
